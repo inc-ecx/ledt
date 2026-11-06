@@ -12,27 +12,38 @@ public:
   typedef int32_t dim;
 
   struct Bounds {
-    dim x;
-    dim y;
-    dim width;
-    dim height;
+    dim x = 0;
+    dim y = 0;
+    dim width = 0;
+    dim height = 0;
   };
+
+  template <class T>
+  static constexpr dim todim(T t) {
+    return static_cast<dim>(t);
+  }
+
+  template <class T>
+  static constexpr float tofloat(T t) {
+    return static_cast<float>(t);
+  }
+
+  template <class T>
+  static constexpr float todouble(T t) {
+    return static_cast<double>(t);
+  }
 
   static constexpr dim INVALID_DIM = std::numeric_limits<dim>::min();
 
   struct RenderArgs {
-    SDL_Window *window; // not null
-    SDL_Renderer *renderer; // not null
+    SDL_Window* window; // not null
+    SDL_Renderer* renderer; // not null
 
-    TTF_Font *font;
+    TTF_Font* font;
   };
 
   struct EventArgs {
-    SDL_Event *se; // not null
-  };
-
-  struct LayoutArgs {
-    SDL_Window *window; // not null
+    SDL_Event* se; // not null
   };
 
   virtual ~Ui() = default;
@@ -42,35 +53,45 @@ public:
   //
 
   // accesses bounds for this ui object
-  Bounds &accessBounds() { return bounds; }
+  Bounds& accessBounds() { return bounds; }
+  Bounds& accessViewport() { return viewport; }
 
   // lays out children of this ui object
-  virtual void layout(const LayoutArgs &a) {}
+  virtual void layout();
+
+  // helpers
+  void layoutChildren();
+  void doLayeredLayout();
+
+  // used by container ui elements looking for their children to give a wanted size dimension.
+  // note: width and height must be zero-initialized. hasWidth and hasHeight must be false-initialized.
+  virtual void queryWrap(dim& width, dim& height, bool& hasWidth, bool& hasHeight);
+
+  void queryWrapChildren(int& width, int& height, bool& hasWidth, bool& hasHeight);
 
   //
   // interface
   //
 
-  virtual void handle(const EventArgs &a) {}
+  virtual void handle(const EventArgs& a);
+  virtual void render(const RenderArgs& a);
 
-  virtual void render(const RenderArgs &a) {}
+  // helpers
+  void handleChildren(const EventArgs& event);
+  void renderChildren(const RenderArgs& a);
 
   //
   // ui tree
   //
 
-  void add(std::unique_ptr<Ui> &&child) { children.push_back(std::move(child)); }
+  void add(std::shared_ptr<Ui>&& child) { children.push_back(std::move(child)); }
 
   void clear() { children.clear(); }
 
-  size_t size() const { return children.size(); }
-
-  std::unique_ptr<Ui> &at(size_t const index) { return children.at(index); }
-
 protected:
   Bounds bounds = {};
-private:
-  std::vector<std::unique_ptr<Ui> > children;
+  Bounds viewport = {};
+  std::vector<std::shared_ptr<Ui>> children;
 };
 
 #endif //LEDT_UI_H

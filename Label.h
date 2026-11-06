@@ -5,14 +5,14 @@
 
 #include "Ui.h"
 
-class Label : public Ui {
+class Label final : public Ui {
 public:
   void render(const RenderArgs &a) override;
 
   std::string text;
 
-  static std::unique_ptr<Label> basic(const std::string& text) {
-    auto instance = std::make_unique<Label>();
+  static std::shared_ptr<Label> make(const std::string& text) {
+    auto instance = std::make_shared<Label>();
     instance->text = text;
     return instance;
   }

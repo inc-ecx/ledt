@@ -15,5 +15,12 @@ add_executable(ledt main.cpp
         ScreenMain.h
         Label.cpp
         Label.h
+        Row.cpp
+        Row.h
+        Cell.h
+        Log.h
+        Col.cpp
+        Col.h
+        Elements.h
 )
 target_link_libraries(ledt PRIVATE vendor)

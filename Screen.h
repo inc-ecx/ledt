@@ -6,8 +6,7 @@
 
 class Screen {
 public:
-  std::unique_ptr<Ui> ui = Label::basic("");
-
+  std::shared_ptr<Ui> ui = Label::make("");
 };
 
 #endif //LEDT_SCREEN_H

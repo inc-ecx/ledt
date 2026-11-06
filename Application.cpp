@@ -95,10 +95,7 @@ void Application::updateLayout() {
   if (ui().accessBounds().width == w && ui().accessBounds().height == h) return;
 
   ui().accessBounds() = {0, 0, w, h};
-  Ui::LayoutArgs args{
-    .window = window
-  };
-  ui().layout(args);
+  ui().layout();
 }
 
 Ui & Application::ui() {
