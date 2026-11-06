@@ -8,10 +8,14 @@
 #include "Ui.h"
 #include "Screen.h"
 
-class Application {
+class Application : public UiContext {
 public:
   explicit Application(std::unique_ptr<Screen>&& screen);
+  ~Application() = default;
   void run();
+
+  int32_t mouseX() override { return mX; }
+  int32_t mouseY() override { return mY; }
 private:
   void init();
   void update();
@@ -21,6 +25,9 @@ private:
   void updateLayout();
 
   Ui& ui();
+
+  int32_t mX = std::numeric_limits<int32_t>::min();
+  int32_t mY = std::numeric_limits<int32_t>::min();
 
   bool running = true;
   TTF_Font * font = nullptr;

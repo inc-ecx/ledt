@@ -1,7 +1,7 @@
 ﻿#include "Ui.h"
 
-void Ui::queryWrapChildren(int& width, int& height, bool& hasWidth, bool& hasHeight) {
-  for (const auto& child : children) {
+void Ui::queryWrapChildren(int &width, int &height, bool &hasWidth, bool &hasHeight) {
+  for (const auto &child: children) {
     int subWidth = 0, subHeight = 0;
     bool subHasWidth = false, subHasHeight = false;
     child->queryWrap(subWidth, subHeight, subHasWidth, subHasHeight);
@@ -16,17 +16,17 @@ void Ui::queryWrapChildren(int& width, int& height, bool& hasWidth, bool& hasHei
   }
 }
 
-void Ui::queryWrap(int& width, int& height, bool& hasWidth, bool& hasHeight) {
+void Ui::queryWrap(int &width, int &height, bool &hasWidth, bool &hasHeight) {
   queryWrapChildren(width, height, hasWidth, hasHeight);
 }
 
-void Ui::handleChildren(const EventArgs& event) {
-  for (const auto& child : children) {
+void Ui::handleChildren(const EventArgs &event) {
+  for (const auto &child: children) {
     child->handle(event);
   }
 }
 
-void Ui::handle(const EventArgs& event) {
+void Ui::handle(const EventArgs &event) {
   handleChildren(event);
 }
 
@@ -35,32 +35,39 @@ void Ui::layout() {
   layoutChildren();
 }
 
-void Ui::render(const RenderArgs& a) {
+void Ui::render(const RenderArgs &a) {
   renderChildren(a);
 }
 
 void Ui::doLayeredLayout() {
-  for (const auto& child : children) {
+  for (const auto &child: children) {
     child->bounds = bounds;
     child->viewport = bounds;
   }
 }
 
 void Ui::layoutChildren() {
-  for (const auto& child : children) {
+  for (const auto &child: children) {
     child->layout();
   }
 }
 
-void Ui::renderChildren(const RenderArgs& a) {
+void Ui::renderChildren(const RenderArgs &a) {
   for (auto itr = children.rbegin(); itr != children.rend(); ++itr) {
     (*itr)->render(a);
   }
 }
 
+extern UiContext &mainUiContext;
+
+[[nodiscard]] UiContext &Ui::context() const {
+  return mainUiContext;
+}
+
 [[nodiscard]] bool Ui::hovered() const {
   //int x = Application::app.getMouseX(), y = Application::app.getMouseY();
-  dim x, y;
+  dim x = context().mouseX();
+  dim y = context().mouseY();
 
   if (x >= (bounds.x) &&
       x < (bounds.x + bounds.width) &&

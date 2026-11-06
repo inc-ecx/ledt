@@ -24,5 +24,6 @@ add_executable(ledt main.cpp
         Elements.h
         Button.cpp
         Button.h
+        UiContext.h
 )
 target_link_libraries(ledt PRIVATE vendor)

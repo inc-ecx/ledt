@@ -9,15 +9,17 @@
 #include "Application.h"
 #include "ScreenMain.h"
 
+static Application app{std::make_unique<ScreenMain>()};
+UiContext &mainUiContext = app;
+
 int main(int argc, char **argv) {
   SetProcessDPIAware();
 
   using namespace std;
 
   try {
-    Application app{std::make_unique<ScreenMain>()};
     app.run();
-  } catch (std::exception const & e) {
+  } catch (std::exception const &e) {
     cerr << e.what() << endl;
   }
 
