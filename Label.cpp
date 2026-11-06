@@ -10,8 +10,8 @@ void Label::render(const RenderArgs& a) {
     color);
   SDL_Texture* textTexture = SDL_CreateTextureFromSurface(a.renderer, textSurface);
 
-  dim cy = 0;// bounds.y + (bounds.height - TTF_GetFontHeight(a.font)) / 2;
-  dim cx = 0;// bounds.x + (bounds.width - textSurface->w) / 2;
+  dim cy = bounds.y + (bounds.height - TTF_GetFontHeight(a.font)) / 2;
+  dim cx = bounds.x + (bounds.width - textSurface->w) / 2;
 
   const SDL_FRect textRect {
     static_cast<float>(cx),

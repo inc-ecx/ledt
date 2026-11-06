@@ -18,6 +18,8 @@ private:
   void render();
   void close();
 
+  void updateLayout();
+
   Ui& ui();
 
   bool running = true;

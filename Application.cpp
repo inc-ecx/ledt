@@ -13,6 +13,8 @@ Application::Application(std::unique_ptr<Screen> &&screen) :
 void Application::run() {
   init();
 
+  updateLayout();
+
   while (running) {
     render();
     update();
@@ -50,6 +52,8 @@ void Application::update() {
       case SDL_EVENT_QUIT:
         running = false;
         break;
+      case SDL_EVENT_WINDOW_RESIZED:
+        updateLayout();
       default:
         break;
     }
@@ -82,6 +86,19 @@ void Application::close() {
 
   TTF_Quit();
   SDL_Quit();
+}
+
+void Application::updateLayout() {
+  int w, h;
+  SDL_GetWindowSize(window, &w, &h);
+
+  if (ui().accessBounds().width == w && ui().accessBounds().height == h) return;
+
+  ui().accessBounds() = {0, 0, w, h};
+  Ui::LayoutArgs args{
+    .window = window
+  };
+  ui().layout(args);
 }
 
 Ui & Application::ui() {
