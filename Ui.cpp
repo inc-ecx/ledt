@@ -58,18 +58,19 @@ void Ui::renderChildren(const RenderArgs& a) {
   }
 }
 
-//[[nodiscard]] bool Ui::hovered() const {
-//  //int x = Application::app.getMouseX(), y = Application::app.getMouseY();
-//
-//  if (x >= (this->x) &&
-//      x < (this->x + width) &&
-//      y >= (this->y) &&
-//      y < (this->y + height) &&
-//      x >= (this->vpx1) &&
-//      x < (this->vpx2) &&
-//      y >= (this->vpy1) &&
-//      y < (this->vpy2))
-//    return true;
-//
-//  return false;
-//}
+[[nodiscard]] bool Ui::hovered() const {
+  //int x = Application::app.getMouseX(), y = Application::app.getMouseY();
+  dim x, y;
+
+  if (x >= (bounds.x) &&
+      x < (bounds.x + bounds.width) &&
+      y >= (bounds.y) &&
+      y < (bounds.y + bounds.height) &&
+      x >= (viewport.x) &&
+      x < (viewport.x + viewport.width) &&
+      y >= (viewport.y) &&
+      y < (viewport.y + viewport.height))
+    return true;
+
+  return false;
+}

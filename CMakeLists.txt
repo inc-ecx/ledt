@@ -22,5 +22,7 @@ add_executable(ledt main.cpp
         Col.cpp
         Col.h
         Elements.h
+        Button.cpp
+        Button.h
 )
 target_link_libraries(ledt PRIVATE vendor)
