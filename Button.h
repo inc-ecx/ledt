@@ -35,7 +35,6 @@ public:
   void handle(const EventArgs& a) override;
 
   // data
-
   void setText(const std::string& text) { this->text = text; }
 };
 

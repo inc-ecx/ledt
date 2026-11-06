@@ -41,7 +41,7 @@ public:
     SDL_Window *window; // not null
     SDL_Renderer *renderer; // not null
 
-    TTF_Font *font;
+    TTF_Font *font; // not null
   };
 
   struct EventArgs {

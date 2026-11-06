@@ -65,7 +65,6 @@ extern UiContext &mainUiContext;
 }
 
 [[nodiscard]] bool Ui::hovered() const {
-  //int x = Application::app.getMouseX(), y = Application::app.getMouseY();
   dim x = context().mouseX();
   dim y = context().mouseY();
 

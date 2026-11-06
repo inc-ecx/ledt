@@ -6,9 +6,7 @@
 using namespace std;
 
 Application::Application(std::unique_ptr<Screen> &&screen) :
-  screen(std::move(screen)) {
-
-}
+  screen(std::move(screen)) {}
 
 void Application::run() {
   init();
@@ -18,6 +16,7 @@ void Application::run() {
   while (running) {
     render();
     update();
+    runLaters();
   }
 
   close();
@@ -34,7 +33,7 @@ void Application::init() {
   if (font == nullptr)
     throw runtime_error(std::format("TTF_OpenFont failed: {}", SDL_GetError()));
 
-  window = SDL_CreateWindow("ledt", 640, 480, SDL_WINDOW_RESIZABLE);
+  window = SDL_CreateWindow("ledt", 640, 480, SDL_WINDOW_RESIZABLE | SDL_WINDOW_BORDERLESS);
   if (!window)
     throw runtime_error("SDL_CreateWindow failed");
 
@@ -54,6 +53,11 @@ void Application::update() {
         break;
       case SDL_EVENT_WINDOW_RESIZED:
         updateLayout();
+        break;
+      case SDL_EVENT_MOUSE_MOTION:
+        mX = static_cast<int>(e.motion.x);
+        mY = static_cast<int>(e.motion.y);
+        break;
       default:
         break;
     }
@@ -88,17 +92,23 @@ void Application::close() {
   SDL_Quit();
 }
 
+void Application::runLaters() {
+  std::lock_guard lock{mtxLater};
+  for (auto f: laters) f();
+  laters.clear();
+}
+
 void Application::updateLayout() {
   int w, h;
   SDL_GetWindowSize(window, &w, &h);
 
   if (ui().accessBounds().width == w && ui().accessBounds().height == h) return;
 
-  ui().accessBounds() = {0, 0, w, h};
+  ui().accessBounds() = {0, 0, Ui::todim(w), Ui::todim(h)};
   ui().layout();
 }
 
-Ui & Application::ui() {
+Ui &Application::ui() {
   if (screen == nullptr) throw std::runtime_error("screen is null");
   if (screen->ui == nullptr) throw std::runtime_error("screen->ui is null");
   return *screen->ui;

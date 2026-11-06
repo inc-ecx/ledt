@@ -14,10 +14,10 @@ void Label::render(const RenderArgs& a) {
   dim cx = bounds.x + (bounds.width - textSurface->w) / 2;
 
   const SDL_FRect textRect {
-    static_cast<float>(cx),
-    static_cast<float>(cy),
-    static_cast<float>(textSurface->w),
-    static_cast<float>(textSurface->h)
+    tofloat(cx),
+    tofloat(cy),
+    tofloat(textSurface->w),
+    tofloat(textSurface->h)
   };
 
   SDL_RenderTexture(a.renderer, textTexture, nullptr, &textRect);

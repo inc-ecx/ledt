@@ -6,6 +6,9 @@
 // display
 #include "Label.h"
 
+// controls
+#include "Button.h"
+
 // layout
 #include "Cell.h"
 #include "Row.h"
