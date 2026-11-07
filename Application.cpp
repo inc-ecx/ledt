@@ -16,13 +16,17 @@ void Application::run(std::unique_ptr<Screen>&& screen) {
   {
     std::lock_guard lock{mtxScreen};
     this->theScreen.swap(screen);
+    updateLayout();
   }
-  updateLayout();
 
   while (running) {
-    render();
     update();
-    runLaters();
+
+    {
+      std::lock_guard lock{mtxScreen};
+      render();
+      runLaters();
+    }
   }
 
   close();
@@ -88,8 +92,13 @@ bool Application::EventFilter(void* data, SDL_Event* event) {
       std::lock_guard lock{app->mtxScreen};
       app->mX = std::numeric_limits<int>::min();
       app->mY = std::numeric_limits<int>::min();
+
+      Ui::EventArgs args{
+        .se = event
+      };
+      app->screen().handle(args);
+      app->ui().handle(args);
     }
-    app->update();
     app->render();
   }
 
@@ -144,21 +153,32 @@ void Application::update() {
       break;
     }
 
-    std::lock_guard lock{mtxScreen};
-    Ui::EventArgs args{
-      .se = &e
-    };
-    screen().handle(args);
-    ui().handle(args);
+    {
+      std::lock_guard lock{mtxScreen};
+      Ui::EventArgs args{
+        .se = &e
+      };
+      screen().handle(args);
+      ui().handle(args);
+    }
   }
 }
 
 void Application::render() {
-  std::lock_guard lock{mtxScreen};
-
   SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
   SDL_RenderClear(renderer);
   SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+
+  int w, h;
+  SDL_GetWindowSize(window, &w, &h);
+  SDL_FRect rect = {
+    .x = 0.0f,
+    .y = 0.0f,
+    .w = static_cast<float>(w),
+    .h = static_cast<float>(h)
+  };
+  SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+  SDL_RenderRect(renderer, &rect);
 
   Ui::RenderArgs args{
     .window = window,
@@ -171,8 +191,6 @@ void Application::render() {
 }
 
 void Application::close() {
-  std::lock_guard lock{mtxScreen};
-
   SDL_DestroyRenderer(renderer);
   SDL_DestroyWindow(window);
 
@@ -181,20 +199,11 @@ void Application::close() {
 }
 
 void Application::runLaters() {
-  std::vector<std::function<void()>> latersCopy{};
-  {
-    std::lock_guard lock{mtxLater};
-    latersCopy = laters;
-    laters.clear();
-  }
-
-  std::lock_guard lock{mtxScreen};
-  for (auto f : latersCopy) f();
+  for (auto f : laters) f();
+  laters.clear();
 }
 
 void Application::updateLayout() {
-  std::lock_guard lock{mtxScreen};
-
   int w, h;
   SDL_GetWindowSize(window, &w, &h);
   if (w < 1) w = 1;
@@ -215,4 +224,9 @@ Ui& Application::ui() {
   if (theScreen == nullptr) throw std::runtime_error("screen is null");
   if (theScreen->ui == nullptr) throw std::runtime_error("screen->ui is null");
   return *theScreen->ui;
+}
+
+void Application::later(std::function<void()> f) {
+  if (!f) throw std::runtime_error("later(function<void()> f) called with f = nullptr");
+  laters.push_back(f);
 }

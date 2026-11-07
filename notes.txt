@@ -1,0 +1,7 @@
+structure:
+    application is responsible for managing application flow. it exposes window data and functions to the ui via UiContext.
+    screen is one whole screen.
+    ui is a ui element.
+threading:
+    use UiContext to get into main thread.
+    don't hold more than one mutex ever.

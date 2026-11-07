@@ -4,6 +4,7 @@
 #include <cstdint>
 #include <functional>
 
+// may only be called from ui context (Ui::render, Ui::handle, Ui::layout...)
 class UiContext {
 public:
   virtual ~UiContext() = default;
