@@ -2,15 +2,21 @@
 
 #include <stdexcept>
 #include <format>
+#include <cassert>
+
+#include "Log.h"
 
 using namespace std;
 
-Application::Application(std::unique_ptr<Screen> &&screen) :
-  screen(std::move(screen)) {}
+Application::Application() {}
 
-void Application::run() {
+void Application::run(std::unique_ptr<Screen>&& screen) {
   init();
 
+  {
+    std::lock_guard lock{mtxScreen};
+    this->theScreen.swap(screen);
+  }
   updateLayout();
 
   while (running) {
@@ -20,6 +26,74 @@ void Application::run() {
   }
 
   close();
+}
+
+SDL_HitTestResult Application::HitTestCallback(SDL_Window* window, const SDL_Point* area, void* data) {
+  constexpr int MOUSE_RESIZE_PADDING = 8;
+
+  assert(data);
+  auto app = static_cast<Application*>(data);
+
+  {
+    std::lock_guard lock{app->mtxScreen};
+    std::unique_ptr<Screen>& screen = app->getScreen();
+    if (screen != nullptr && screen->canDragWindow(area->x, area->y))
+      return SDL_HITTEST_DRAGGABLE;
+  }
+
+  int width, height;
+  SDL_GetWindowSize(window, &width, &height);
+
+  if ((SDL_GetWindowFlags(window) & SDL_WINDOW_MAXIMIZED) == 0) {
+    if (area->y < MOUSE_RESIZE_PADDING) {
+      //if (area->x < MOUSE_RESIZE_PADDING) {
+      //  return SDL_HITTEST_RESIZE_TOPLEFT;
+      //} else if (area->x > width - MOUSE_RESIZE_PADDING) {
+      //  return SDL_HITTEST_RESIZE_TOPRIGHT;
+      //} else {
+      //  return SDL_HITTEST_RESIZE_TOP;
+      //}
+    }
+    else if (area->y > height - MOUSE_RESIZE_PADDING) {
+      if (area->x < MOUSE_RESIZE_PADDING) {
+        return SDL_HITTEST_RESIZE_BOTTOMLEFT;
+      }
+      else if (area->x > width - MOUSE_RESIZE_PADDING) {
+        return SDL_HITTEST_RESIZE_BOTTOMRIGHT;
+      }
+      else {
+        return SDL_HITTEST_RESIZE_BOTTOM;
+      }
+    }
+    else if (area->x < MOUSE_RESIZE_PADDING) {
+      return SDL_HITTEST_RESIZE_LEFT;
+    }
+    else if (area->x > width - MOUSE_RESIZE_PADDING) {
+      return SDL_HITTEST_RESIZE_RIGHT;
+    }
+  }
+
+  return SDL_HITTEST_NORMAL;
+}
+
+bool Application::EventFilter(void* data, SDL_Event* event) {
+  if (!data || !event) return false;
+
+  auto app = static_cast<Application*>(data);
+
+  if (event->type == SDL_EVENT_WINDOW_EXPOSED) {
+    app->updateLayout();
+
+    {
+      std::lock_guard lock{app->mtxScreen};
+      app->mX = std::numeric_limits<int>::min();
+      app->mY = std::numeric_limits<int>::min();
+    }
+    app->update();
+    app->render();
+  }
+
+  return true;
 }
 
 void Application::init() {
@@ -37,6 +111,12 @@ void Application::init() {
   if (!window)
     throw runtime_error("SDL_CreateWindow failed");
 
+  if (!SDL_SetWindowHitTest(window, HitTestCallback, this))
+    throw runtime_error("SDL_SetWindowHitTest failed");
+
+  if (!SDL_AddEventWatch(EventFilter, this))
+    throw runtime_error("SDL_AddEventWatch failed");
+
   renderer = SDL_CreateRenderer(window, nullptr);
   if (!renderer)
     throw runtime_error("SDL_CreateRenderer failed");
@@ -48,28 +128,34 @@ void Application::update() {
   SDL_Event e;
   while (SDL_PollEvent(&e) != 0) {
     switch (e.type) {
-      case SDL_EVENT_QUIT:
-        running = false;
-        break;
-      case SDL_EVENT_WINDOW_RESIZED:
-        updateLayout();
-        break;
-      case SDL_EVENT_MOUSE_MOTION:
-        mX = static_cast<int>(e.motion.x);
-        mY = static_cast<int>(e.motion.y);
-        break;
-      default:
-        break;
+    case SDL_EVENT_QUIT:
+      running = false;
+      break;
+    case SDL_EVENT_WINDOW_RESIZED:
+      updateLayout();
+      break;
+    case SDL_EVENT_MOUSE_MOTION: {
+      std::lock_guard lock{mtxScreen};
+      mX = static_cast<int>(e.motion.x);
+      mY = static_cast<int>(e.motion.y);
+      break;
+    }
+    default:
+      break;
     }
 
+    std::lock_guard lock{mtxScreen};
     Ui::EventArgs args{
       .se = &e
     };
+    screen().handle(args);
     ui().handle(args);
   }
 }
 
 void Application::render() {
+  std::lock_guard lock{mtxScreen};
+
   SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
   SDL_RenderClear(renderer);
   SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
@@ -85,6 +171,8 @@ void Application::render() {
 }
 
 void Application::close() {
+  std::lock_guard lock{mtxScreen};
+
   SDL_DestroyRenderer(renderer);
   SDL_DestroyWindow(window);
 
@@ -93,14 +181,24 @@ void Application::close() {
 }
 
 void Application::runLaters() {
-  std::lock_guard lock{mtxLater};
-  for (auto f: laters) f();
-  laters.clear();
+  std::vector<std::function<void()>> latersCopy{};
+  {
+    std::lock_guard lock{mtxLater};
+    latersCopy = laters;
+    laters.clear();
+  }
+
+  std::lock_guard lock{mtxScreen};
+  for (auto f : latersCopy) f();
 }
 
 void Application::updateLayout() {
+  std::lock_guard lock{mtxScreen};
+
   int w, h;
   SDL_GetWindowSize(window, &w, &h);
+  if (w < 1) w = 1;
+  if (h < 1) h = 1;
 
   if (ui().accessBounds().width == w && ui().accessBounds().height == h) return;
 
@@ -108,8 +206,13 @@ void Application::updateLayout() {
   ui().layout();
 }
 
-Ui &Application::ui() {
-  if (screen == nullptr) throw std::runtime_error("screen is null");
-  if (screen->ui == nullptr) throw std::runtime_error("screen->ui is null");
-  return *screen->ui;
+Screen& Application::screen() {
+  if (theScreen == nullptr) throw std::runtime_error("screen is null");
+  return *theScreen;
+}
+
+Ui& Application::ui() {
+  if (theScreen == nullptr) throw std::runtime_error("screen is null");
+  if (theScreen->ui == nullptr) throw std::runtime_error("screen->ui is null");
+  return *theScreen->ui;
 }

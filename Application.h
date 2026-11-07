@@ -11,11 +11,13 @@
 
 class Application : public UiContext {
 public:
-  explicit Application(std::unique_ptr<Screen> &&screen);
+  Application();
 
   ~Application() override = default;
 
-  void run();
+  void run(std::unique_ptr<Screen> &&screen);
+
+  std::unique_ptr<Screen>& getScreen() { return theScreen; }
 
   // UiContext Implementation
   SDL_Window *getWindow() override { return window; };
@@ -24,9 +26,13 @@ public:
   int32_t mouseY() override { return mY; }
   void later(std::function<void()> f) override {
     if (!f) throw std::runtime_error("later(function<void()> f) called with f = nullptr");
-    std::lock_guard lock(mtxLater);
+    std::lock_guard lock{mtxLater};
     laters.push_back(f);
   }
+
+  // SDL Handlers
+  static SDL_HitTestResult HitTestCallback(SDL_Window *window, const SDL_Point *area, void *data);
+  static bool EventFilter(void *data, SDL_Event *event);
 
 private:
   void init();
@@ -42,19 +48,21 @@ private:
   void updateLayout();
 
   Ui &ui();
+  Screen &screen();
 
   std::mutex mtxLater;
   std::vector<std::function<void()> > laters; // function pointers are not null
 
-  int32_t mX = std::numeric_limits<int32_t>::min();
-  int32_t mY = std::numeric_limits<int32_t>::min();
 
   bool running = true;
+
+  std::mutex mtxScreen;
   TTF_Font *font = nullptr;
   SDL_Window *window = nullptr;
   SDL_Renderer *renderer = nullptr;
-
-  std::unique_ptr<Screen> screen;
+  int32_t mX = std::numeric_limits<int32_t>::min();
+  int32_t mY = std::numeric_limits<int32_t>::min();
+  std::unique_ptr<Screen> theScreen;
 };
 
 #endif //APPLICATION_H

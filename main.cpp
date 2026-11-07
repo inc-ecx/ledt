@@ -9,7 +9,7 @@
 #include "Application.h"
 #include "ScreenMain.h"
 
-static Application app{std::make_unique<ScreenMain>()};
+static Application app{};
 UiContext &mainUiContext = app;
 
 int main(int argc, char **argv) {
@@ -17,11 +17,11 @@ int main(int argc, char **argv) {
 
   using namespace std;
 
-  try {
-    app.run();
-  } catch (std::exception const &e) {
-    cerr << e.what() << endl;
-  }
+  // try {
+    app.run(std::make_unique<ScreenMain>());
+  // } catch (std::exception const &e) {
+  //   cerr << e.what() << endl;
+  // }
 
   return 0;
 }

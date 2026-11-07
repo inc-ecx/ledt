@@ -14,7 +14,7 @@ public:
   CellType type;
   dim size;
 
-  Cell(CellType const type, dim const size, std::shared_ptr<Ui>&& child) :
+  Cell(CellType const type, dim const size, std::shared_ptr<Ui> child) :
     Ui(),
     type(type),
     size(size) {
@@ -27,11 +27,11 @@ public:
 
   ~Cell() override = default;
 
-  static std::shared_ptr<Cell> abs(std::shared_ptr<Ui>&& child, dim size) {
+  static std::shared_ptr<Cell> abs(std::shared_ptr<Ui> child, dim size) {
     return std::make_shared<Cell>(CellType::ABSOLUTE, size, std::move(child));
   }
 
-  static std::shared_ptr<Cell> rel(std::shared_ptr<Ui>&& child, dim size = 1) {
+  static std::shared_ptr<Cell> rel(std::shared_ptr<Ui> child, dim size = 1) {
     return std::make_shared<Cell>(CellType::RELATIVE, size, std::move(child));
   }
 
@@ -57,7 +57,7 @@ public:
   //   ), // equivalent of Cell::abs(..., 200)
   //   ...
   // )
-  static std::shared_ptr<Cell> wrap(std::shared_ptr<Ui>&& child) {
+  static std::shared_ptr<Cell> wrap(std::shared_ptr<Ui> child) {
     return std::make_shared<Cell>(CellType::WRAP, 0, std::move(child));
   }
 };
