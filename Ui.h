@@ -60,7 +60,9 @@ public:
     return r;
   }
 
-
+  //
+  // arg structs
+  //
 
   struct RenderArgs {
     SDL_Window *window; // not null
@@ -72,6 +74,10 @@ public:
   struct EventArgs {
     SDL_Event *se; // not null
   };
+
+  //
+  // object
+  //
 
   virtual ~Ui() = default;
 
@@ -118,10 +124,13 @@ public:
 
   void clear() { children.clear(); }
 
-  [[nodiscard]] UiContext &context() const;
-
   [[nodiscard]] bool hovered() const;
 
+  //
+  // context
+  //
+
+  [[nodiscard]] UiContext &context() const;
 protected:
   Bounds bounds = {};
   Bounds viewport = {};

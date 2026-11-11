@@ -21,6 +21,7 @@ roadmap
         move,scale,delete drawn objects
 
 should be possible in the future:
+    unicode/japanese?
     drawing mode: layers
     editing: block select/multiple cursors
     graph mode or table mode: uml?
@@ -34,3 +35,11 @@ should be possible in the future:
     own open dialog
     own feature search
     editing via ssh
+
+
+
+bugs to check:
+    - edit buffer bounds errors
+    - threading in application: probably should move screen accesses outside. of appplication.h
+    - TTF_RenderText_Blended and other thread safe functions may be called from SDL_AddEventWatch's EventFilter
+    - verify return values and not accessing null ptrs

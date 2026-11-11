@@ -2,18 +2,39 @@
 
 Editor::Editor() {
   buffer->createLine();
-  buffer->append("hello world 1");
+  buffer->append("hello world 3");
   buffer->createLine();
   buffer->append("hello world 2");
   buffer->createLine();
-  buffer->append("hello world 3");
+  buffer->append("hello world 1");
 }
 
-void Editor::handle(const EventArgs& a) {}
+void Editor::handle(const EventArgs& a) {
+  if (a.se->type == SDL_EVENT_TEXT_INPUT) {
+    std::string t = a.se->text.text;
+    buffer->append(t);
+    buffer->trySetCursorCol(buffer->getCursorCol() + t.size());
+  } else if (a.se->type == SDL_EVENT_KEY_DOWN) {
+    //const bool * keys = SDL_GetKeyboardState(nullptr);
+    //bool shiftDown = keys[SDL_SCANCODE_LSHIFT] || keys[SDL_SCANCODE_RSHIFT];
+    switch (a.se->key.key) {
+    case SDLK_BACKSPACE:
+      if (!buffer->tryEraseCol()) {
+        //if (buffer->tryEraseLine()) {
+        //  size_t lineLength = 0;
+        //  if (buffer->tryGetLineLength(lineLength)) {
+        //    buffer->trySetCursorCol(lineLength);
+        //  }
+        //}
+      }
+      break;
+    }
+  }
+}
 
 void Editor::render(const RenderArgs& a) {
   EditBuffer::LineIter begin, end;
-  buffer->getLineView(0zu, std::numeric_limits<size_t>::max(), begin, end);
+  buffer->getLineView(0, std::numeric_limits<size_t>::max(), begin, end);
 
   for (size_t i = 0; begin != end; ++i, ++begin) {
     std::string const& line = *begin;

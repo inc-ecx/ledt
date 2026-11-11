@@ -16,24 +16,30 @@ bool EditBuffer::trySetCursorCol(size_t newCursorCol) {
   return true;
 }
 
-bool EditBuffer::tryBackspace() {
+bool EditBuffer::tryEraseCol() {
   if (lines.empty()) return false;
-  lines.at(cursorLine).erase(cursorCol);
+  auto &line = lines.at(cursorLine);
+  if (cursorCol < 1) return false;
+  line.erase(cursorCol - 1, 1);
+  cursorCol--;
   return true;
 }
 
 void EditBuffer::append(std::string const& s) {
   if (lines.empty()) lines.emplace_back();
-  lines.at(cursorLine).insert(cursorLine, s);
+  lines.at(cursorLine).insert(cursorCol, s);
 }
 
 void EditBuffer::createLine() {
   lines.insert(lines.begin() + cursorLine, std::string());
 }
 
-void EditBuffer::removeLine() {
+bool EditBuffer::tryEraseLine() {
+  if (lines.empty()) return false;
   lines.erase(lines.begin() + cursorLine);
-  if (cursorLine > lines.size()) cursorLine--;
+  cursorLine--;
+  cursorCol = 0;
+  return true;
 }
 
 void EditBuffer::getLineView(size_t viewStart, size_t viewEnd, LineIter& begin, LineIter& end) {
@@ -47,4 +53,10 @@ void EditBuffer::getLineView(size_t viewStart, size_t viewEnd, LineIter& begin, 
 void EditBuffer::getLines(LineIter& begin, LineIter& end) {
   begin = lines.begin();
   end = lines.end();
+}
+
+bool EditBuffer::tryGetLineLength(size_t& lineLength) const {
+  if (lines.empty()) return false;
+  lineLength = lines.at(cursorLine).size();
+  return true;
 }

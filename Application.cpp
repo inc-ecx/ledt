@@ -130,7 +130,8 @@ void Application::init() {
   if (!renderer)
     throw runtime_error("SDL_CreateRenderer failed");
 
-  SDL_StartTextInput(window);
+  if (!SDL_StartTextInput(window))
+    throw runtime_error("SDL_StartTextInput failed");
 }
 
 void Application::update() {

@@ -16,7 +16,7 @@ ScreenMain::ScreenMain() {
   UiContext& context = ui->context();
   ui = Col::make({
     Cell::abs(20, Row::make({
-      Cell::abs(50, Label::make("ledt")),
+      Cell::abs(43, Label::make("ledt")),
       Cell::rel(dragElement = Label::make("")),
       Cell::abs(40, Button::make("min", [&context] {
         SDL_MinimizeWindow(context.getWindow());
@@ -33,7 +33,7 @@ ScreenMain::ScreenMain() {
         SDL_PushEvent(&ev);
       })),
     })),
-    Cell::rel(Border::make(2, std::make_shared<Editor>()))
+    Cell::rel(Border::make(3, std::make_shared<Editor>()))
   });
 }
 
