@@ -5,8 +5,9 @@
 EditBuffer::~EditBuffer() {}
 
 bool EditBuffer::trySetCursorLine(size_t newCursorLine) {
-  if (newCursorLine > lines.size()) return false;
+  if (newCursorLine >= lines.size()) return false;
   cursorLine = newCursorLine;
+  cursorCol = 0;
   return true;
 }
 
@@ -32,6 +33,7 @@ void EditBuffer::append(std::string const& s) {
 
 void EditBuffer::createLine() {
   lines.insert(lines.begin() + cursorLine, std::string());
+  cursorCol = 0;
 }
 
 bool EditBuffer::tryEraseLine() {

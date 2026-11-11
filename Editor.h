@@ -16,11 +16,11 @@ public:
   void handle(const EventArgs& a) override;
   void render(const RenderArgs& a) override;
 
-  //
-  // Edit Actions
-  //
 private:
+  void onCursorMove();
+
   std::shared_ptr<EditBuffer> buffer = std::make_shared<EditBuffer>();
+  Uint64 ticksLastCursor = 0;
 };
 
 
