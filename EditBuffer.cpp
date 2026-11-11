@@ -36,6 +36,43 @@ void EditBuffer::createLine() {
   cursorCol = 0;
 }
 
+void EditBuffer::breakLine() {
+  if (lines.empty()) {
+    lines.emplace_back();
+  }
+
+  auto & line = lines.at(cursorLine);
+  if (line.empty() || cursorCol == line.size() - 1) {
+    lines.insert(lines.begin() + cursorLine, std::string());
+    cursorLine++;
+    cursorCol = 0;
+    return;
+  }
+
+  auto substr = std::string(line.begin() + cursorCol, line.end());
+  if (cursorCol < line.size() - 1) line.erase(cursorCol);
+  lines.insert(lines.begin() + cursorLine + 1, substr);
+
+  cursorLine++;
+  cursorCol = 0;
+}
+
+bool EditBuffer::tryJoinLine() {
+  if (lines.empty()) return false;
+  if (cursorLine == 0) return false;
+
+  auto &lineAbove = lines.at(cursorLine - 1);
+  size_t newCursorCol = lineAbove.size();
+  auto &line = lines.at(cursorLine);
+  lineAbove += line;
+
+  lines.erase(lines.begin() + cursorLine);
+  cursorLine--;
+  cursorCol = newCursorCol;
+
+  return true;
+}
+
 bool EditBuffer::tryEraseLine() {
   if (lines.empty()) return false;
   lines.erase(lines.begin() + cursorLine);

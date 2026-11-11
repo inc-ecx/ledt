@@ -23,6 +23,8 @@ public:
   bool tryEraseCol();
   void append(std::string const& s);
   void createLine();
+  void breakLine();
+  bool tryJoinLine();
   bool tryEraseLine();
 
   //

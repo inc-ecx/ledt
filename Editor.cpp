@@ -3,12 +3,11 @@
 #include "Log.h"
 
 Editor::Editor() {
-  buffer->createLine();
-  buffer->append("hello world 3");
+  buffer->append("hello world 1");
   buffer->createLine();
   buffer->append("hello world 2");
   buffer->createLine();
-  buffer->append("hello world 1");
+  buffer->append("hello world 3");
 }
 
 void Editor::handle(const EventArgs& a) {
@@ -37,8 +36,15 @@ void Editor::handle(const EventArgs& a) {
       buffer->trySetCursorLine(buffer->getCursorLine() + 1);
       onCursorMove();
       break;
+    case SDLK_RETURN:
+      buffer->breakLine();
+      onCursorMove();
+      break;
     case SDLK_BACKSPACE:
       if (!buffer->tryEraseCol()) {
+        if (buffer->tryJoinLine()) {
+
+        }
         //if (buffer->tryEraseLine()) {
         //  size_t lineLength = 0;
         //  if (buffer->tryGetLineLength(lineLength)) {
@@ -47,6 +53,8 @@ void Editor::handle(const EventArgs& a) {
         //}
       }
       onCursorMove();
+      break;
+    default:
       break;
     }
   }
