@@ -1,19 +1,21 @@
-C:\Documents\hagenberg\semester3\.prank\ledt\vendor>git clone https://github.com/libsdl-org/SDL
-C:\Documents\hagenberg\semester3\.prank\ledt\vendor>cd sdl
-C:\Documents\hagenberg\semester3\.prank\ledt\vendor\SDL>git checkout release-3.4.x
+Initial Setup:
+    C:\Documents\hagenberg\semester3\.prank\ledt\vendor>git clone https://github.com/libsdl-org/SDL
+    C:\Documents\hagenberg\semester3\.prank\ledt\vendor>cd sdl
+    C:\Documents\hagenberg\semester3\.prank\ledt\vendor\SDL>git checkout release-3.4.x
 
-C:\Documents\hagenberg\semester3\.prank\ledt\vendor>git clone https://github.com/libsdl-org/SDL_ttf
-C:\Documents\hagenberg\semester3\.prank\ledt\vendor>git checkout release-3.2.x
-C:\Documents\hagenberg\semester3\.prank\ledt\vendor>cd SDL_ttf
-C:\Documents\hagenberg\semester3\.prank\ledt\vendor\SDL_ttf>git checkout release-3.2.x
+    C:\Documents\hagenberg\semester3\.prank\ledt\vendor>git clone https://github.com/libsdl-org/SDL_ttf
+    C:\Documents\hagenberg\semester3\.prank\ledt\vendor>git checkout release-3.2.x
+    C:\Documents\hagenberg\semester3\.prank\ledt\vendor>cd SDL_ttf
+    C:\Documents\hagenberg\semester3\.prank\ledt\vendor\SDL_ttf>git checkout release-3.2.x
 
-:: C:\Documents\hagenberg\semester3\.prank\ledt\vendor>git clone https://github.com/libsdl-org/SDL_image/
-:: C:\Documents\hagenberg\semester3\.prank\ledt\vendor>cd SDL_image
-:: C:\Documents\hagenberg\semester3\.prank\ledt\vendor\SDL_image>git switch release-3.4.x
+    :: C:\Documents\hagenberg\semester3\.prank\ledt\vendor>git clone https://github.com/libsdl-org/SDL_image/
+    :: C:\Documents\hagenberg\semester3\.prank\ledt\vendor>cd SDL_image
+    :: C:\Documents\hagenberg\semester3\.prank\ledt\vendor\SDL_image>git switch release-3.4.x
 
-PS C:\Documents\hagenberg\semester3\.prank\ledt\vendor\SDL_ttf\external> .\Get-GitModules.ps1
-PS C:\Documents\hagenberg\semester3\.prank\ledt\vendor\SDL_image\external> .\Get-GitModules.ps1
+    PS C:\Documents\hagenberg\semester3\.prank\ledt\vendor\SDL_ttf\external> .\Get-GitModules.ps1
+    PS C:\Documents\hagenberg\semester3\.prank\ledt\vendor\SDL_image\external> .\Get-GitModules.ps1
 
 
 When cloning:
 git submodule update --init --recursive
+Use cmake with MSVC in CLion
