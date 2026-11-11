@@ -14,8 +14,16 @@ public:
   // cursor movement
   //
 
+  bool tryMoveCursorLine(int delta) {
+    return trySetCursorLine(getCursorLine() + delta);
+  }
+  bool tryMoveCursorCol(int delta) {
+    return trySetCursorCol(getCursorCol() + delta);
+  }
   bool trySetCursorLine(size_t newCursorLine);
   bool trySetCursorCol(size_t newCursorCol);
+  void setCursorColEnd();
+  void setCursorLineEnd();
 
   //
   // editing
@@ -41,6 +49,8 @@ private:
   std::vector<std::string> lines;
   size_t cursorLine = 0; // always in bounds, except if lines.empty()
   size_t cursorCol = 0; // always in bounds, except if lines.empty() or lines.at(cursorLine).empty()
+
+  size_t targetCursorCol = 0;
 };
 
 #endif //LEDT_EditBuffer_H

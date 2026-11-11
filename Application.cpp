@@ -132,6 +132,11 @@ void Application::init() {
 
   if (!SDL_StartTextInput(window))
     throw runtime_error("SDL_StartTextInput failed");
+
+  if (!SDL_SetHint(SDL_HINT_KEYCODE_OPTIONS, "hide_numpad")) {
+    throw runtime_error("SDL_SetHint SDL_HINT_KEYCODE_OPTIONS");
+
+  }
 }
 
 void Application::update() {

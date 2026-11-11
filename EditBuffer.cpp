@@ -2,19 +2,35 @@
 
 #include <stdexcept>
 
+#include "Log.h"
+
 EditBuffer::~EditBuffer() {}
 
 bool EditBuffer::trySetCursorLine(size_t newCursorLine) {
   if (newCursorLine >= lines.size()) return false;
   cursorLine = newCursorLine;
-  cursorCol = 0;
+  if (targetCursorCol == 0) targetCursorCol = cursorCol;
+  if (targetCursorCol != 0)
+    cursorCol = std::min(lines.at(cursorLine).size(), targetCursorCol);
   return true;
 }
 
 bool EditBuffer::trySetCursorCol(size_t newCursorCol) {
   if (!lines.empty() && newCursorCol > lines.at(cursorLine).size()) return false;
   cursorCol = newCursorCol;
+  targetCursorCol = 0;
   return true;
+}
+
+void EditBuffer::setCursorColEnd() {
+  if (lines.empty()) return;
+  cursorCol = lines.at(cursorLine).size();
+  targetCursorCol = 0;
+}
+
+void EditBuffer::setCursorLineEnd() {
+  if (lines.empty()) return;
+  cursorLine = lines.size() - 1;
 }
 
 bool EditBuffer::tryEraseCol() {
@@ -23,6 +39,7 @@ bool EditBuffer::tryEraseCol() {
   if (cursorCol < 1) return false;
   line.erase(cursorCol - 1, 1);
   cursorCol--;
+  targetCursorCol = 0;
   return true;
 }
 
@@ -34,6 +51,7 @@ void EditBuffer::append(std::string const& s) {
 void EditBuffer::createLine() {
   lines.insert(lines.begin() + cursorLine, std::string());
   cursorCol = 0;
+  targetCursorCol = 0;
 }
 
 void EditBuffer::breakLine() {
@@ -46,6 +64,7 @@ void EditBuffer::breakLine() {
     lines.insert(lines.begin() + cursorLine, std::string());
     cursorLine++;
     cursorCol = 0;
+    targetCursorCol = 0;
     return;
   }
 
@@ -55,6 +74,7 @@ void EditBuffer::breakLine() {
 
   cursorLine++;
   cursorCol = 0;
+  targetCursorCol = 0;
 }
 
 bool EditBuffer::tryJoinLine() {
@@ -69,6 +89,7 @@ bool EditBuffer::tryJoinLine() {
   lines.erase(lines.begin() + cursorLine);
   cursorLine--;
   cursorCol = newCursorCol;
+  targetCursorCol = 0;
 
   return true;
 }
@@ -78,6 +99,7 @@ bool EditBuffer::tryEraseLine() {
   lines.erase(lines.begin() + cursorLine);
   cursorLine--;
   cursorCol = 0;
+  targetCursorCol = 0;
   return true;
 }
 

@@ -10,30 +10,61 @@ Editor::Editor() {
   buffer->append("hello world 3");
 }
 
+// https://wiki.libsdl.org/SDL3/BestKeyboardPractices
+// https://discourse.libsdl.org/t/numlock-state/20738/14
+// https://wiki.libsdl.org/SDL3/SDL_HINT_KEYCODE_OPTIONS
+
 void Editor::handle(const EventArgs& a) {
-  if (a.se->type == SDL_EVENT_TEXT_INPUT) {
-    auto t = std::string(a.se->text.text);
+  auto const& sdlEvt = *a.se;
+  if (sdlEvt.type == SDL_EVENT_TEXT_INPUT) {
+    auto t = std::string(sdlEvt.text.text);
     buffer->append(t);
     buffer->trySetCursorCol(buffer->getCursorCol() + t.size());
     onCursorMove();
-  } else if (a.se->type == SDL_EVENT_KEY_DOWN) {
+  } else if (sdlEvt.type == SDL_EVENT_KEY_DOWN) {
     //const bool * keys = SDL_GetKeyboardState(nullptr);
     //bool shiftDown = keys[SDL_SCANCODE_LSHIFT] || keys[SDL_SCANCODE_RSHIFT];
-    switch (a.se->key.key) {
+    // Log::info(std::format("key: {:#08x}", sdlEvt.key.key));
+    SDL_Keymod mods = sdlEvt.key.mod;//SDL_GetModState();
+    switch (sdlEvt.key.key) {
+    case SDLK_HOME:
+      buffer->trySetCursorCol(0);
+      if (mods && (mods & SDL_KMOD_CTRL) == mods)
+        buffer->trySetCursorLine(0);
+      onCursorMove();
+      break;
+    case SDLK_END:
+      buffer->setCursorColEnd();
+      if (mods && (mods & SDL_KMOD_CTRL) == mods)
+        buffer->setCursorLineEnd();
+      onCursorMove();
+      break;
     case SDLK_LEFT:
-      buffer->trySetCursorCol(buffer->getCursorCol() - 1);
+      if (!buffer->tryMoveCursorCol(-1)) {
+        if (buffer->tryMoveCursorLine(-1)) {
+          buffer->setCursorColEnd();
+        }
+      }
       onCursorMove();
       break;
     case SDLK_RIGHT:
-      buffer->trySetCursorCol(buffer->getCursorCol() + 1);
+      if (!buffer->tryMoveCursorCol(1)) {
+        if (buffer->tryMoveCursorLine(1)) {
+          buffer->trySetCursorCol(0);
+        }
+      }
       onCursorMove();
       break;
     case SDLK_UP:
-      buffer->trySetCursorLine(buffer->getCursorLine() - 1);
+      if (!buffer->tryMoveCursorLine(-1)) {
+        buffer->trySetCursorCol(0);
+      }
       onCursorMove();
       break;
     case SDLK_DOWN:
-      buffer->trySetCursorLine(buffer->getCursorLine() + 1);
+      if (!buffer->tryMoveCursorLine(1)) {
+        buffer->setCursorColEnd();
+      }
       onCursorMove();
       break;
     case SDLK_RETURN:
@@ -41,16 +72,16 @@ void Editor::handle(const EventArgs& a) {
       onCursorMove();
       break;
     case SDLK_BACKSPACE:
-      if (!buffer->tryEraseCol()) {
-        if (buffer->tryJoinLine()) {
-
-        }
-        //if (buffer->tryEraseLine()) {
-        //  size_t lineLength = 0;
-        //  if (buffer->tryGetLineLength(lineLength)) {
-        //    buffer->trySetCursorCol(lineLength);
-        //  }
-        //}
+      if (!buffer->tryEraseCol())
+        buffer->tryJoinLine();
+      onCursorMove();
+      break;
+    case SDLK_DELETE:
+      if (buffer->tryMoveCursorCol(1)) {
+        buffer->tryEraseCol();
+      } else {
+        if (buffer->tryMoveCursorLine(1))
+          buffer->tryJoinLine();
       }
       onCursorMove();
       break;
@@ -106,7 +137,7 @@ void Editor::render(const RenderArgs& a) {
     }
 
     SDL_SetRenderDrawColor(a.renderer, 0, 0, 0, 255);
-    SDL_FRect rect {
+    SDL_FRect rect{
       tofloat(cursorX),
       tofloat(cursorY),
       2.0f,
