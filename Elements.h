@@ -13,5 +13,6 @@
 #include "Cell.h"
 #include "Row.h"
 #include "Col.h"
+#include "Border.h"
 
 #endif //ELEMENTS_H

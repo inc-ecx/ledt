@@ -25,5 +25,11 @@ add_executable(ledt main.cpp
         Button.cpp
         Button.h
         UiContext.h
+        Editor.cpp
+        Editor.h
+        EditBuffer.cpp
+        EditBuffer.h
+        Border.cpp
+        Border.h
 )
 target_link_libraries(ledt PRIVATE vendor)

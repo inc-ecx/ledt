@@ -11,6 +11,11 @@
 
 class Ui {
 public:
+
+  //
+  // dimensions
+  //
+
   typedef int32_t dim;
 
   struct Bounds {
@@ -36,6 +41,26 @@ public:
   }
 
   static constexpr dim INVALID_DIM = std::numeric_limits<dim>::min();
+
+  static Bounds inset(Bounds bounds, dim amount) {
+    Bounds r = {
+      bounds.x + amount,
+      bounds.y + amount,
+      bounds.width - amount * 2,
+      bounds.height - amount * 2
+    };
+    if (r.width < 0) {
+      r.x = bounds.x + bounds.width / 2,
+      r.width = 0;
+    }
+    if (r.height < 0) {
+      r.y = bounds.y + bounds.height / 2,
+      r.height = 0;
+    }
+    return r;
+  }
+
+
 
   struct RenderArgs {
     SDL_Window *window; // not null

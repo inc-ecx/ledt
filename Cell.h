@@ -27,12 +27,16 @@ public:
 
   ~Cell() override = default;
 
-  static std::shared_ptr<Cell> abs(std::shared_ptr<Ui> child, dim size) {
+  static std::shared_ptr<Cell> abs(dim size, std::shared_ptr<Ui> child) {
     return std::make_shared<Cell>(CellType::ABSOLUTE, size, std::move(child));
   }
 
-  static std::shared_ptr<Cell> rel(std::shared_ptr<Ui> child, dim size = 1) {
+  static std::shared_ptr<Cell> rel(dim size, std::shared_ptr<Ui> child) {
     return std::make_shared<Cell>(CellType::RELATIVE, size, std::move(child));
+  }
+
+  static std::shared_ptr<Cell> rel(std::shared_ptr<Ui> child) {
+    return std::make_shared<Cell>(CellType::RELATIVE, 1, std::move(child));
   }
 
   static std::shared_ptr<Cell> abs(dim size) {
