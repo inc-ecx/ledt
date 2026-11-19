@@ -31,6 +31,11 @@ public:
   }
 
   template<class T>
+  static constexpr int toint(T t) {
+    return static_cast<int>(t);
+  }
+
+  template<class T>
   static constexpr float tofloat(T t) {
     return static_cast<float>(t);
   }
@@ -67,12 +72,10 @@ public:
   struct RenderArgs {
     SDL_Window *window; // not null
     SDL_Renderer *renderer; // not null
-
-    TTF_Font *font; // not null
   };
 
   struct EventArgs {
-    SDL_Event *se; // not null
+    SDL_Event *sdlEvt; // not null
   };
 
   //

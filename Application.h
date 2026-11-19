@@ -26,6 +26,7 @@ public:
   SDL_Renderer* getRenderer() override { return renderer; }
   int32_t mouseX() override { return mX; }
   int32_t mouseY() override { return mY; }
+  TTF_Font* getFont() override { return font; }
   void later(std::function<void()> f) override;
 
   //

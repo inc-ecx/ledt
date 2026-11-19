@@ -116,8 +116,16 @@ void EditBuffer::getLines(LineIter& begin, LineIter& end) {
   end = lines.end();
 }
 
+std::string const& EditBuffer::getLine(size_t index) {
+  return lines.at(index);
+}
+
 bool EditBuffer::tryGetLineLength(size_t& lineLength) const {
   if (lines.empty()) return false;
   lineLength = lines.at(cursorLine).size();
   return true;
+}
+
+size_t EditBuffer::getLineCount() const {
+  return lines.size();
 }

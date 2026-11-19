@@ -5,6 +5,8 @@ void Button::layout() {
 }
 
 void Button::render(const RenderArgs &a) {
+  TTF_Font* font = context().getFont();
+
   std::string const &value = text;
 
   if (value.empty()) return;
@@ -14,12 +16,12 @@ void Button::render(const RenderArgs &a) {
     color = {0x40, 0x00, 0x00, 0xff};
   }
   SDL_Surface *textSurface = TTF_RenderText_Blended(
-    a.font, value.c_str(), value.size(),
+    font, value.c_str(), value.size(),
     color
   );
   SDL_Texture *textTexture = SDL_CreateTextureFromSurface(a.renderer, textSurface);
 
-  dim cy = bounds.y + (bounds.height - TTF_GetFontHeight(a.font)) / 2;
+  dim cy = bounds.y + (bounds.height - TTF_GetFontHeight(font)) / 2;
   dim cx = bounds.x + (bounds.width - textSurface->w) / 2;
 
   const SDL_FRect textRect{
@@ -41,7 +43,7 @@ void Button::onClicked() {
 }
 
 void Button::handle(const EventArgs &a) {
-  if (a.se->button.button == SDL_BUTTON_LEFT && a.se->button.down) {
+  if (a.sdlEvt->button.button == SDL_BUTTON_LEFT && a.sdlEvt->button.down) {
     if (hovered()) {
       onClicked();
     }

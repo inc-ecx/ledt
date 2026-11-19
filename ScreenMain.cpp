@@ -33,12 +33,12 @@ ScreenMain::ScreenMain() {
         SDL_PushEvent(&ev);
       })),
     })),
-    Cell::rel(Border::make(3, std::make_shared<Editor>()))
+    Cell::rel(Border::make(8, std::make_shared<Editor>()))
   });
 }
 
 void ScreenMain::handle(const Ui::EventArgs& event) {
-  if (event.se->type == SDL_EVENT_WINDOW_RESTORED || event.se->type == SDL_EVENT_WINDOW_MAXIMIZED) {
+  if (event.sdlEvt->type == SDL_EVENT_WINDOW_RESTORED || event.sdlEvt->type == SDL_EVENT_WINDOW_MAXIMIZED) {
     if (maxButton) maxButton->setText(getMaxButtonText());
   }
 }

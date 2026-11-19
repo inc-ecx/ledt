@@ -94,7 +94,7 @@ bool Application::EventFilter(void* data, SDL_Event* event) {
       app->mY = std::numeric_limits<int>::min();
 
       Ui::EventArgs args{
-        .se = event
+        .sdlEvt = event
       };
       app->screen().handle(args);
       app->ui().handle(args);
@@ -162,7 +162,7 @@ void Application::update() {
     {
       std::lock_guard lock{mtxScreen};
       Ui::EventArgs args{
-        .se = &e
+        .sdlEvt = &e
       };
       screen().handle(args);
       ui().handle(args);
@@ -189,7 +189,6 @@ void Application::render() {
   Ui::RenderArgs args{
     .window = window,
     .renderer = renderer,
-    .font = font
   };
   ui().render(args);
 

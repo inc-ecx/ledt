@@ -40,7 +40,9 @@ public:
   //
   void getLineView(size_t viewStart, size_t viewEnd, LineIter& begin, LineIter& end);
   void getLines(LineIter& begin, LineIter& end);
+  std::string const& getLine(size_t index);
   bool tryGetLineLength(size_t& lineLength) const;
+  size_t getLineCount() const;
 
   [[nodiscard]] size_t getCursorLine() const { return cursorLine; }
   [[nodiscard]] size_t getCursorCol() const { return cursorCol; }

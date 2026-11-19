@@ -9,10 +9,11 @@ class UiContext {
 public:
   virtual ~UiContext() = default;
 
-  virtual SDL_Window *getWindow() = 0;
-  virtual SDL_Renderer *getRenderer() = 0;
+  virtual SDL_Window *getWindow() = 0; // not null
+  virtual SDL_Renderer *getRenderer() = 0; // not null
   virtual int32_t mouseX() = 0;
   virtual int32_t mouseY() = 0;
+  virtual TTF_Font* getFont() = 0; // not null
   virtual void later(std::function<void()> f) = 0;
 
 };

@@ -17,6 +17,8 @@ public:
   void render(const RenderArgs& a) override;
 
 private:
+  void handleKeyEvent(const EventArgs& a);
+  void handleMouseButtonDownEvent(const EventArgs& a);
   void onCursorMove();
 
   std::shared_ptr<EditBuffer> buffer = std::make_shared<EditBuffer>();
